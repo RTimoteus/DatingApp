@@ -26,7 +26,7 @@ namespace datingapp.api.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(UserForRegisterDto UserForRegisterDto)
+        public async Task<IActionResult> Register([FromBody]UserForRegisterDto UserForRegisterDto)
         {
 
             UserForRegisterDto.Username = UserForRegisterDto.Username.ToLower();
@@ -47,6 +47,7 @@ namespace datingapp.api.Controllers
             return StatusCode(201);
         }
 
+        
         [HttpPost("login")]
         public async Task<IActionResult> Login(UserForLoginDto UserForLoginDto)
         {
