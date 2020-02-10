@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using datingapp.api.Data;
 using datingapp.api.helper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -35,10 +36,16 @@ namespace datingapp.api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<DataContext>(x => x.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(opt =>
+            {
+                opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+            });
             services.AddCors();
             services.AddScoped<IAuthRepository, AuthRepository>();
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer( options => {
+            services.AddScoped<IDatingRepository, DatingRepository>();
+            services.AddAutoMapper(typeof(DatingRepository).Assembly);
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+            {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
@@ -58,12 +65,15 @@ namespace datingapp.api
             }
             else
             {
-                app.UseExceptionHandler(builder =>{
-                    builder.Run(async context =>{
+                app.UseExceptionHandler(builder =>
+                {
+                    builder.Run(async context =>
+                    {
                         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                        
+
                         var error = context.Features.Get<IExceptionHandlerFeature>();
-                        if (error != null){
+                        if (error != null)
+                        {
                             context.Response.AddApplicationError(error.Error.Message);
                             await context.Response.WriteAsync(error.Error.Message);
                         }
