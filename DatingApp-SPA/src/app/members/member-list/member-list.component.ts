@@ -22,7 +22,7 @@ export class MemberListComponent implements OnInit {
     this.userService.getUsers().subscribe((users: User[]) => {
       this.users = users;
     }, error => {
-      this.alertify.error(error);
+      this.alertify.error(error + '');
     });
   }
 }
